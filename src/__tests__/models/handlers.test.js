@@ -1,155 +1,376 @@
 /* eslint-disable no-undef */
 import {
-    registerEmployeeHandler,
-    listEmployeesHandler,
-    findEmployeeByNameHandler,
-    listEmployeesByPositionHandler,
-    listEmployeesByDepartmentHandler,
-    listEmployeesBySalaryHandler,
-    deleteEmployeeHandler,
-    updateEmployeeHandler 
- } from '../../controllers/employeeController.js';
-import * as employeeService from '../../service/employeeService.js';
+  registerEmployeeHandler,
+  listEmployeesHandler,
+  findEmployeeByNameHandler,
+  listEmployeesByPositionHandler,
+  listEmployeesByDepartmentHandler,
+  listEmployeesBySalaryHandler,
+  deleteEmployeeHandler,
+  updateEmployeeHandler,
+} from "../../controllers/employeeController.js";
+import * as employeeRepository from "../../repository/employeeRepository.js";
 
-const logSpy = jest.spyOn(console, 'log').mockImplementation();
-const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+const logSpy = jest.spyOn(console, "log").mockImplementation();
+const errorSpy = jest.spyOn(console, "error").mockImplementation();
 
-afterEach(() => {
+describe("EMployee Handlers", () => {
+  afterEach(() => {
     jest.clearAllMocks();
-});
+  });
+  it("should return 201 when registering an employee", async () => {
+    const mockEmployee = {
+      name: "Test name",
+      department: "Test department",
+      salary: 2022,
+      position: "Test position",
+    };
+    jest.spyOn(employeeRepository, "register").mockResolvedValue(mockEmployee);
 
-describe('EMployee Handlers', () => {
-    it('should log success message when registering a employee', () => {
-        const mockEmployee = { name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' };
-        jest.spyOn(employeeService, 'registerEmployee').mockReturnValue(mockEmployee);
+    const req = { body: mockEmployee };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-        registerEmployeeHandler(mockEmployee);
+    await registerEmployeeHandler(req, res);
 
-        expect(logSpy).toHaveBeenCalledWith('employee registered successfully:', mockEmployee);
-    });   
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(mockEmployee);
+  });
 
-    it('should log error message when registering a employee fails', () => {
-        jest.spyOn(employeeService, 'registerEmployee').mockImplementation(() => {
-            throw new Error('Creation Error');
-        });
+  it("should return a 400 status when the data is not valid", () => {
+    const mockEmployeeNotValid = {
+      name: "Test name",
+      department: "Test department",
+      salary: "-2025",
+      position: "Test position",
+    };
+    jest.spyOn(employeeRepository, "register").mockReturnValue(null);
 
-        registerEmployeeHandler({ name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' });
+    const req = { body: mockEmployeeNotValid };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-        expect(errorSpy).toHaveBeenCalledWith('Error registering employee:', 'Creation Error');
+    registerEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: "Invalid employee data" });
+  });
+  it("should return a 500 status when an error occurs", async () => {
+    const mockEmployee = {
+      name: "Test name",
+      department: "Test department",
+      salary: 2022,
+      position: "Test position",
+    };
+    jest
+      .spyOn(employeeRepository, "register")
+      .mockRejectedValue(new Error("Error registering employee"));
+
+    const req = { body: mockEmployee };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    await registerEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Error registering employee",
+      error: "Error registering employee",
+    });
+  });
+
+  it("should return a 200 when list all employee", () => {
+    const mockEmployees = [
+      {
+        name: "Test name",
+        department: "Test department",
+        salary: 2022,
+        position: "Test position",
+      },
+    ];
+    jest.spyOn(employeeRepository, "findAll").mockReturnValue(mockEmployees);
+
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesHandler({}, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployees);
+  });
+  it("should return a 500 status when an error occurs", () => {
+    jest.spyOn(employeeRepository, "findAll").mockImplementation(() => {
+      throw new Error("Internal Server Error");
     });
 
-    it('should list all employee', () => {
-        const mockEmployees = [{ name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' }];
-        jest.spyOn(employeeService, 'listEmployees').mockReturnValue(mockEmployees);
-    
-        listEmployeesHandler();
-    
-        expect(logSpy).toHaveBeenCalledWith('employees:', mockEmployees);
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesHandler({}, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+  it("should return a 200 when find a employee by name", () => {
+    const mockEmployee = {
+      name: "Test name",
+      department: "Test department",
+      salary: 2022,
+      position: "Test position",
+    };
+    jest.spyOn(employeeRepository, "findByName").mockReturnValue(mockEmployee);
+
+    const req = { params: { name: "Test name" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    findEmployeeByNameHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployee);
+  });
+
+  it("should return a 404 status if employee is not found", () => {
+    const mockEmployee = null;
+    jest.spyOn(employeeRepository, "findByName").mockReturnValue(mockEmployee);
+
+    const req = { params: { name: "Test name" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    findEmployeeByNameHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employee not found" });
+  });
+
+  it("should return a 500 status when an error occurs", () => {
+    jest.spyOn(employeeRepository, "findByName").mockImplementation(() => {
+      throw new Error("Internal Server Error");
     });
 
-    it('should find a employee by name', () => {
-        const mockEmployee = { name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' };
-        jest.spyOn(employeeService, 'findEmployeeByName').mockReturnValue(mockEmployee);
-    
-        findEmployeeByNameHandler('Test name');
-    
-        expect(logSpy).toHaveBeenCalledWith('employee found:', mockEmployee);
+    const req = { params: { name: "Test name" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    findEmployeeByNameHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+  it("should return a 200 and list employee by position", () => {
+    const mockEmployees = [
+      {
+        name: "Test name",
+        department: "Test department",
+        salary: 2022,
+        position: "Test position",
+      },
+    ];
+    jest
+      .spyOn(employeeRepository, "listByPosition")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { position: "Test position" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesByPositionHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployees);
+  });
+
+  it("should return a 404 status if employees are not found by position", () => {
+    const mockEmployees = null;
+    jest
+      .spyOn(employeeRepository, "listByPosition")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { position: "Test position" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesByPositionHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employees not found" });
+  });
+
+  it("should return a 500 status when an error occurs", () => {
+    jest.spyOn(employeeRepository, "listByPosition").mockImplementation(() => {
+      throw new Error("Internal Server Error");
     });
-    
-    it('should log not found message if employee is not found', () => {
-        jest.spyOn(employeeService, 'findEmployeeByName').mockReturnValue(null);
-    
-        findEmployeeByNameHandler('Nonexistent name');
-    
-        expect(logSpy).toHaveBeenCalledWith('employee not found');
+  });
+
+  it("should return a 200 and list employees by department", () => {
+    const mockEmployees = [
+      {
+        name: "Test name",
+        department: "Test department",
+        salary: 2022,
+        position: "Test position",
+      },
+    ];
+    jest
+      .spyOn(employeeRepository, "listByDepartment")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { department: "Test department" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesByDepartmentHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployees);
+  });
+
+  it("should return a 404 status if employees are not found by department", () => {
+    const mockEmployees = null;
+    jest
+      .spyOn(employeeRepository, "listByDepartment")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { department: "Test department" } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesByDepartmentHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employees not found" });
+  });
+
+  it("should return a 500 status when an error occurs", () => {
+    jest
+      .spyOn(employeeRepository, "listByDepartment")
+      .mockImplementation(() => {
+        throw new Error("Internal Server Error");
+      });
+  });
+
+  it("should return a 200 and list employees by salary", () => {
+    const mockEmployees = [
+      {
+        name: "Test name",
+        department: "Test department",
+        salary: 2022,
+        position: "Test position",
+      },
+    ];
+    jest
+      .spyOn(employeeRepository, "listBySalary")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { salary: 2022 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesBySalaryHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployees);
+  });
+
+  it("should return a 404 status if employees are not found by salary", () => {
+    const mockEmployees = null;
+    jest
+      .spyOn(employeeRepository, "listBySalary")
+      .mockReturnValue(mockEmployees);
+
+    const req = { params: { salary: 2022 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    listEmployeesBySalaryHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employees not found" });
+  });
+
+  it("should return a 500 status when an error occurs", () => {
+    jest.spyOn(employeeRepository, "listBySalary").mockImplementation(() => {
+      throw new Error("Internal Server Error");
+    });
+  });
+
+  it("should return a 200 and vdelete a employee by id", () => {
+    const mockEmployee = {
+      name: "Test name",
+      department: "Test department",
+      salary: 2022,
+      position: "Test position",
+      id: 1,
+    };
+    jest.spyOn(employeeRepository, "deleteById").mockReturnValue(mockEmployee);
+
+    const req = { params: { id: 1 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    deleteEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployee);
+  });
+
+  it("should return a 404 if employee to delete is not found", () => {
+    const mockEmployee = null;
+    jest.spyOn(employeeRepository, "deleteById").mockReturnValue(mockEmployee);
+
+    const req = { params: { id: 1 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    deleteEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employee not found" });
+  });
+
+  it("should return a 500 when deleting a employee fails", () => {
+    jest.spyOn(employeeRepository, "deleteById").mockImplementation(() => {
+      throw new Error("Internal Server Error");
     });
 
-    it('should list employee by position', () => {
-        const mockEmployees = [{ name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' }];
-        jest.spyOn(employeeService, 'listEmployeesByPosition').mockReturnValue(mockEmployees);  
+    const req = { params: { id: 1 } };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    deleteEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
+
+  it("should return a 200 when update a employee by id", () => {
+    const mockEmployee = {
+      name: "Test name",
+      department: "Test department",
+      salary: 2022,
+      position: "Test position",
+    };
+    jest.spyOn(employeeRepository, "updateById").mockReturnValue(mockEmployee);
+
+    const req = { params: { id: 1 }, body: mockEmployee };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    updateEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(mockEmployee);
+  });
+
+  it("should return a 404 if employee to update is not found", () => {
+    const mockEmployee = null;
+    jest.spyOn(employeeRepository, "updateById").mockReturnValue(mockEmployee);
+
+    const req = { params: { id: 1 }, body: mockEmployee };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    updateEmployeeHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ message: "Employee not found" });
+  });
+
+  it("should return a 500 when updating a employee fails", () => {
+    jest.spyOn(employeeRepository, "updateById").mockImplementation(() => {
+      throw new Error("Internal Server Error");
     });
 
-    it('should list employees by department', () => {
-        const mockEmployees = [{ name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' }];
-        jest.spyOn(employeeService, 'listEmployeesByDepartment').mockReturnValue(mockEmployees);
-    });
+    const req = { params: { id: 1 }, body: {} };
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
 
-    it('should list employees by salary', () => {
-        const mockEmployees = [{ name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' }];
-        jest.spyOn(employeeService, 'listEmployeesBySalary').mockReturnValue(mockEmployees);
-    });
+    updateEmployeeHandler(req, res);
 
-    it('should log error message when listing employees by position fails', () => {
-        jest.spyOn(employeeService, 'listEmployeesByPosition').mockImplementation(() => {
-            throw new Error('Employee not found');
-        });
-    
-        listEmployeesByPositionHandler('Test position');
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error listing employees by position:', 'Employee not found');
-    });
-
-    it('should log error message when listing employees by department fails', () => {
-        jest.spyOn(employeeService, 'listEmployeesByDepartment').mockImplementation(() => {
-            throw new Error('Employee not found');
-        });
-    
-        listEmployeesByDepartmentHandler('Test department');
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error listing employees by department:', 'Employee not found');
-    });
-
-    it('should log error message when listing employees by salary fails', () => {
-        jest.spyOn(employeeService, 'listEmployeesBySalary').mockImplementation(() => {
-            throw new Error('Employee not found');
-        });
-    
-        listEmployeesBySalaryHandler(2022);
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error listing employees by salary:', 'Employee not found');
-    });
-    
-    it('should delete a employee by id', () => {
-        const mockEmployee = { name: 'Test name', department: 'Test department', salary: 2022, position: 'Teste position', id: 1 };
-        jest.spyOn(employeeService, 'deleteEmployeeById').mockReturnValue(mockEmployee);
-
-        deleteEmployeeHandler(1);
-
-        expect(logSpy).toHaveBeenCalledWith('employee deleted successfully:', mockEmployee);
-    });
-
-    it('should log not found message if employee to delete is not found', () => {
-        jest.spyOn(employeeService, 'deleteEmployeeById').mockReturnValue(null);
-    
-        deleteEmployeeHandler(999);
-    
-        expect(logSpy).toHaveBeenCalledWith('employee not found, nothing to delete.');
-    });
-    
-    it('should log error message when deleting a employee fails', () => {
-        jest.spyOn(employeeService, 'deleteEmployeeById').mockImplementation(() => {
-            throw new Error('Deletion Error');
-        });
-    
-        deleteEmployeeHandler(1);
-    
-        expect(errorSpy).toHaveBeenCalledWith('Error deleting employee:', 'Deletion Error');
-    });
-
-    it('should update a employee by id', () => {
-        const mockEmployee = { name: 'Test name', department: 'Test department', salary: 2022, position: 'Teste position', id: 1 };
-        jest.spyOn(employeeService, 'updateEmployeeById').mockReturnValue(mockEmployee);
-
-        updateEmployeeHandler(1, mockEmployee);
-
-        expect(logSpy).toHaveBeenCalledWith('employee updated successfully:', mockEmployee);
-    });
-
-    it('should log not found message if employee to update is not found', () => {
-        jest.spyOn(employeeService, 'updateEmployeeById').mockReturnValue(null);
-    
-        updateEmployeeHandler(999, { name: 'Test name', department: 'Test department', salary: 2022, position: 'Test position' });
-    
-        expect(logSpy).toHaveBeenCalledWith('employee not found, nothing to update.');
-    });
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ error: "Internal Server Error" });
+  });
 });
