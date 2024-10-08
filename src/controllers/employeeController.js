@@ -52,7 +52,7 @@ export function findEmployeeByNameHandler(req, res) {
 export function listEmployeesByDepartmentHandler(req, res) {
   try {
     const employees = listByDepartment(req.params.department);
-    if (!employees) {
+    if (!employees || employees.length === 0) {
       return res.status(404).json({ message: "Employees not found" });
     }
     res.status(200).json(employees);
@@ -64,7 +64,7 @@ export function listEmployeesByDepartmentHandler(req, res) {
 export function listEmployeesByPositionHandler(req, res) {
   try {
     const employees = listByPosition(req.params.position);
-    if (!employees) {
+    if (!employees || employees.length === 0) {
       return res.status(404).json({ message: "Employees not found" });
     }
     res.status(200).json(employees);
