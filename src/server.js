@@ -1,6 +1,10 @@
 import app from "./routes/routes.js";
+import dotenv from "dotenv";
 
-const PORT = 3000;
+dotenv.config();
+
+// eslint-disable-next-line no-undef
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
