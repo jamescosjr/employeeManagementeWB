@@ -1,86 +1,110 @@
-import { 
-    registerEmployee, 
-    listEmployees, 
-    findEmployeeByName, 
-    listEmployeesByPosition, 
-    listEmployeesByDepartment, 
-    listEmployeesBySalary, 
-    deleteEmployeeById, 
-    updateEmployeeById 
-} from '../service/employeeService.js';
+import {
+  register,
+  findAll,
+  findByName,
+  listByDepartment,
+  listByPosition,
+  listBySalary,
+  deleteById,
+  updateById,
+} from "../repository/employeeRepository.js";
+import { validateEmployeeData } from "../utils/validation.js";
 
-export function registerEmployeeHandler(data) {
+export async function registerEmployeeHandler(req, res) {
+  const employee = req.body;
+  const isValid = validateEmployeeData(employee);
+
+  if (!isValid) {
+    return res.status(400).json({ message: "Invalid employee data" });
+  }
+
+  try {
+    const newEmployee = await register(employee);
+    res.status(201).json(newEmployee);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error registering employee", error: error.message });
+  }
+}
+
+export function listEmployeesHandler(req, res) {
     try {
-        const employee = registerEmployee(data);
-        console.log('employee registered successfully:', employee);
+        const employees = findAll();
+        res.status(200).json(employees);
     } catch (error) {
-        console.error('Error registering employee:', error.message);
+        res.status(500).json({ error: error.message });
     }
-};
+}
 
-export function listEmployeesHandler() {
-    const employees = listEmployees();
-    console.log('employees:', employees);
-};
-
-export function findEmployeeByNameHandler(name) {
-    const employee = findEmployeeByName(name);
+export function findEmployeeByNameHandler(req, res) {
+  try {
+    const employee = findByName(req.params.name);
     if (!employee) {
-        console.log('employee not found');
-        return;
+      return res.status(404).json({ message: "Employee not found" });
     }
-    console.log('employee found:', employee);
-};
-
-export function listEmployeesByDepartmentHandler(department) {
-    try {
-        const employees = listEmployeesByDepartment(department);
-        console.log('employees found:', employees);
-    } catch (error) {
-        console.error('Error listing employees by department:', error.message);
-    }
+    res.status(200).json(employee);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-export function listEmployeesByPositionHandler(position) {
-    try {
-        const employees = listEmployeesByPosition(position);
-        console.log('employees found:', employees);
-    } catch (error) {
-        console.error('Error listing employees by position:', error.message);
+export function listEmployeesByDepartmentHandler(req, res) {
+  try {
+    const employees = listByDepartment(req.params.department);
+    if (!employees) {
+      return res.status(404).json({ message: "Employees not found" });
     }
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-export function listEmployeesBySalaryHandler(salary) {
-    try {
-        const employees = listEmployeesBySalary(salary);
-        console.log('employees found:', employees);
-    } catch (error) {
-        console.error('Error listing employees by salary:', error.message);
+export function listEmployeesByPositionHandler(req, res) {
+  try {
+    const employees = listByPosition(req.params.position);
+    if (!employees) {
+      return res.status(404).json({ message: "Employees not found" });
     }
+    res.status(200).json(employees);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 }
 
-export function deleteEmployeeHandler(id) {
-    try {
-        const deletedemployee = deleteEmployeeById(id);
-        if (!deletedemployee) {
-            console.log('employee not found, nothing to delete.');
-            return;
-        }
-        console.log('employee deleted successfully:', deletedemployee);
-    } catch (error) {
-        console.error('Error deleting employee:', error.message);
+export function listEmployeesBySalaryHandler(req, res) {
+  try {
+    const employees = listBySalary(req.params.salary);
+    if (!employees) {
+      return res.status(404).json({ message: "Employees not found" });
     }
-};
+    res.status(200).json(employees);
+} catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
 
-export function updateEmployeeHandler(id, data) {
-    try {
-        const updatedemployee = updateEmployeeById(id, data);
-        if (!updatedemployee) {
-            console.log('employee not found, nothing to update.');
-            return;
-        }
-        console.log('employee updated successfully:', updatedemployee);
-    } catch (error) {
-        console.error('Error updating employee:', error.message);
+export function deleteEmployeeHandler(req, res) {
+  try {
+    const deletedemployee = deleteById(req.params.id);
+    if (!deletedemployee) {
+      return res.status(404).json({ message: "Employee not found" });
     }
-};
+    res.status(200).json(deletedemployee);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export function updateEmployeeHandler(req, res) {
+  try {
+    const updatedemployee = updateById(req.params.id, req.body);
+    if (!updatedemployee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    res.status(200).json(updatedemployee);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
