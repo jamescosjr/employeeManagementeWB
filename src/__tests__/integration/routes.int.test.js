@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import request from "supertest";
-import app from "../../routes/routes.js";
+import app from "../../../server.js";
 import { employees } from "../../repository/employeeRepository.js";
 
 describe("Integration tests for routes", () => {
@@ -8,7 +8,6 @@ describe("Integration tests for routes", () => {
     jest.resetModules();
     employees.splice(0, employees.length);
   });
-
   it("should test all the proccess of registering an employee", async () => {
     const employee = {
       name: "John Doe",
