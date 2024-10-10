@@ -1,4 +1,3 @@
-import app from "../../server.js";
 import {
   registerEmployeeHandler,
   listEmployeesHandler,
@@ -9,12 +8,17 @@ import {
   deleteEmployeeHandler,
   updateEmployeeHandler,
 } from "../controllers/employeeController.js";
+import { Router } from "express";
 
-app.post("/employees", registerEmployeeHandler);
-app.get("/employees", listEmployeesHandler);
-app.get("/employees/:name", findEmployeeByNameHandler);
-app.get("/employees/department/:department", listEmployeesByDepartmentHandler);
-app.get("/employees/position/:position", listEmployeesByPositionHandler);
-app.get("/employees/salary/:salary", listEmployeesBySalaryHandler);
-app.delete("/employees/:id", deleteEmployeeHandler);
-app.put("/employees/:id", updateEmployeeHandler);
+const router = Router();
+
+router.post("/employees", registerEmployeeHandler);
+router.get("/employees", listEmployeesHandler);
+router.get("/employees/:name", findEmployeeByNameHandler);
+router.get("/employees/department/:department", listEmployeesByDepartmentHandler);
+router.get("/employees/position/:position", listEmployeesByPositionHandler);
+router.get("/employees/salary/:salary", listEmployeesBySalaryHandler);
+router.delete("/employees/:id", deleteEmployeeHandler);
+router.put("/employees/:id", updateEmployeeHandler);
+
+export default router;
