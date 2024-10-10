@@ -1,7 +1,11 @@
 /* eslint-disable no-undef */
 import request from "supertest";
-import app from "../../../server.js";
+import { app, server } from "../../../server.js";
 import { employees } from "../../repository/employeeRepository.js";
+
+afterAll((done) => {
+  server.close(done);
+});
 
 describe("Integration tests for routes", () => {
   beforeEach(() => {
