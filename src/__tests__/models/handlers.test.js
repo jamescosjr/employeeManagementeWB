@@ -11,13 +11,11 @@ import {
 } from "../../controllers/employeeController.js";
 import * as employeeRepository from "../../repository/employeeRepository.js";
 
-const logSpy = jest.spyOn(console, "log").mockImplementation();
-const errorSpy = jest.spyOn(console, "error").mockImplementation();
-
 describe("EMployee Handlers", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
+
   it("should return 201 when registering an employee", async () => {
     const mockEmployee = {
       name: "Test name",
