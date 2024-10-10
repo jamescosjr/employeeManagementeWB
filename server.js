@@ -6,13 +6,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-
 app.use(router);
 
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-export default app;
+export { app, server };
