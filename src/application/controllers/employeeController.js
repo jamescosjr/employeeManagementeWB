@@ -7,8 +7,8 @@ import {
   listBySalary,
   deleteById,
   updateById,
-} from "../repository/employeeRepository.js";
-import { validateEmployeeData } from "../utils/validation.js";
+} from "../../repository/employeeRepository.js";
+import { validateEmployeeData } from "../../utils/validation.js";
 
 export async function registerEmployeeHandler(req, res) {
   const employee = req.body;
