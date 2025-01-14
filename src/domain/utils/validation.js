@@ -1,19 +1,15 @@
-export function isValidString(str) { return typeof str === 'string' && str.trim() !== ''; };
-
-export function isValidSalary(year) { return typeof year === 'number' && year > 0; };
-
-export function validateEmployeeData(employee) {
-    if (!isValidString(employee.name)) {
-        return false;
+export function validateEmployee(name, position, department, salary) {
+    if (typeof name !== 'string' || name.trim() === '') {
+        return { valid: false, message: 'The name should be a valid string' };
     }
-    if (!isValidString(employee.position)) {
-        return false;
+    if (typeof position !== 'string' || position.trim() === '') {
+        return { valid: false, message: 'The position should be a valid string' };
     }
-    if (!isValidString(employee.department)) {
-        return false;
+    if (typeof department !== 'string' || department.trim() === '') {
+        return { valid: false, message: 'The department should be a valid number' };
     }
-    if (!isValidSalary(employee.salary)) {
-        return false;
+    if (typeof salary !== 'number' || isNaN(salary)) {
+        return { valid: false, message: 'The salary should be a valid number' };
     }
-    return true;
+    return { valid: true };
 }
