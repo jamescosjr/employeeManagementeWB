@@ -1,110 +1,151 @@
-import {
-  register,
-  findAll,
-  findByName,
-  listByDepartment,
-  listByPosition,
-  listBySalary,
-  deleteById,
-  updateById,
-} from "../../repository/employeeRepository.js";
-import { validateEmployeeData } from "../../utils/validation.js";
+import { 
+  createEmployeeService,
+  updateEmployeeService,
+  deleteEmployeeService,
+  getAllEmployeesService,
+  getByIdService,
+  getByPositionService,
+  getByDepartmentService,
+  getBySalaryService,
+} from "../../domain/services/employeeService";
+import { AppError, ValidationError, NotFoundError } from "../../domain/error/customErros.js";
+import { validateEmployee } from "../../domain/utils/validation.js";
 
-export async function registerEmployeeHandler(req, res) {
-  const employee = req.body;
-  const isValid = validateEmployeeData(employee);
+export async function createEmployeeHandler(req, res, next) {
+  const { name, position, department, salary } = req.body;
 
-  if (!isValid) {
-    return res.status(400).json({ message: "Invalid employee data" });
+  const validation = validateEmployee(name, position, department, salary);
+
+  if(!validation.valid){
+      return next(new ValidationError(validation.message));
   }
 
-  try {
-    const newEmployee = await register(employee);
-    res.status(201).json(newEmployee);
+  try{
+      const result = await createEmployeeService({ name, position, department, salary });
+      res.status(201).json(result);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error registering employee", error: error.message });
+      next(error);
   }
 }
 
-export function listEmployeesHandler(req, res) {
-    try {
-        const employees = findAll();
-        res.status(200).json(employees);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+export async function updateEmployeeHandler(req, res, next) {
+  const { id } = req.params;
+  const { name, position, department, salary } = req.body;
 
-export function findEmployeeByNameHandler(req, res) {
-  try {
-    const employee = findByName(req.params.name);
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-    res.status(200).json(employee);
+  const validation = validateEmployee(name, position, department, salary);
+
+  if(!validation.valid){
+      return next(new ValidationError(validation.message));
+  }
+
+  try{
+      const result = await updateEmployeeService(id, { name, position, department, salary });
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+      res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      next(error);
   }
 }
 
-export function listEmployeesByDepartmentHandler(req, res) {
-  try {
-    const employees = listByDepartment(req.params.department);
-    if (!employees || employees.length === 0) {
-      return res.status(404).json({ message: "Employees not found" });
-    }
-    res.status(200).json(employees);
+export async function deleteEmployeeHandler(req, res, next) {
+  const { id } = req.params;
+
+  try{
+      const result = await deleteEmployeeService(id);
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+      res.status(204).end();
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      next(error);
   }
 }
 
-export function listEmployeesByPositionHandler(req, res) {
-  try {
-    const employees = listByPosition(req.params.position);
-    if (!employees || employees.length === 0) {
-      return res.status(404).json({ message: "Employees not found" });
-    }
-    res.status(200).json(employees);
+export async function getEmployeesHandler(req, res, next) {
+  try{
+      const result = await getAllEmployeesService();
+      res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      next(error);
   }
 }
 
-export function listEmployeesBySalaryHandler(req, res) {
-  try {
-    const employees = listBySalary(req.params.salary);
-    if (!employees) {
-      return res.status(404).json({ message: "Employees not found" });
-    }
-    res.status(200).json(employees);
-} catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}
+export async function getEmployeeByIdHandler(req, res, next) {
+  const { id } = req.params;
 
-export function deleteEmployeeHandler(req, res) {
-  try {
-    const deletedemployee = deleteById(req.params.id);
-    if (!deletedemployee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-    res.status(200).json(deletedemployee);
+  try{
+      const result = await getByIdService(id);
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+      res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      next(error);
   }
 }
 
-export function updateEmployeeHandler(req, res) {
-  try {
-    const updatedemployee = updateById(req.params.id, req.body);
-    if (!updatedemployee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
-    res.status(200).json(updatedemployee);
+export async function getEmployeesByNameHandler(req, res, next) {
+  const { name } = req.params;
+
+  try{
+      const result = await getByIdService(name);
+
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+
+      res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+      next(error);
+  }
+}
+
+export async function getEmployeesByPositionHandler(req, res, next) {
+  const { position } = req.params;
+
+  try{
+      const result = await getByPositionService(position);
+
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+
+      res.status(200).json(result);
+  } catch (error) {
+      next(error);
+  }
+}
+
+export async function getEmployeesByDepartmentHandler(req, res, next) {
+  const { department } = req.params;
+
+  try{
+      const result = await getByDepartmentService(department);
+
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+
+      res.status(200).json(result);
+  } catch (error) {
+      next(error);
+  }
+}
+
+export async function getEmployeesBySalaryHandler(req, res, next) {
+  const { salary } = req.params;
+
+  try{
+      const result = await getBySalaryService(salary);
+
+      if(!result){
+          return next(new NotFoundError('employee not found'));
+      }
+
+      res.status(200).json(result);
+  } catch (error) {
+      next(error);
   }
 }

@@ -1,23 +1,23 @@
 import {
-  registerEmployeeHandler,
-  listEmployeesHandler,
-  findEmployeeByNameHandler,
-  listEmployeesByDepartmentHandler,
-  listEmployeesByPositionHandler,
-  listEmployeesBySalaryHandler,
+  createEmployeeHandler,
+  getEmployeesHandler,
+  getEmployeesByNameHandler,
+  getEmployeesByDepartmentHandler,
+  getEmployeesByPositionHandler,
+  getEmployeesBySalaryHandler,
   deleteEmployeeHandler,
   updateEmployeeHandler,
-} from "../employeeController.js";
+} from "../routes/employeeRoutes";
 import { Router } from "express";
 
 const router = Router();
 
-router.post("/employees", registerEmployeeHandler);
-router.get("/employees", listEmployeesHandler);
-router.get("/employees/:name", findEmployeeByNameHandler);
-router.get("/employees/department/:department", listEmployeesByDepartmentHandler);
-router.get("/employees/position/:position", listEmployeesByPositionHandler);
-router.get("/employees/salary/:salary", listEmployeesBySalaryHandler);
+router.post("/employees", createEmployeeHandler);
+router.get("/employees", getEmployeesHandler);
+router.get("/employees/:name", getEmployeesByNameHandler);
+router.get("/employees/department/:department", getEmployeesByDepartmentHandler);
+router.get("/employees/position/:position", getEmployeesByPositionHandler);
+router.get("/employees/salary/:salary", getEmployeesBySalaryHandler,);
 router.delete("/employees/:id", deleteEmployeeHandler);
 router.put("/employees/:id", updateEmployeeHandler);
 
