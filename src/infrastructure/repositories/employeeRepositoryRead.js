@@ -1,10 +1,11 @@
 import { Employee }from '../schemas/employeeSchema.js';
 import { AppError } from '../../domain/error/customErros.js';
 
-export async function getAllEmployees() {
+export async function getAllEmployees(page = 1, limit = 10) {
     try{
-        const employee = await Employee.find();
-        return employee;
+        const skip = (page - 1) * limit;
+        const employees = await Employee.find().skip(skip).limit(limit);
+        return employees;
     } catch(error){
         throw new AppError(error.message, 500);
     }
