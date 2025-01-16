@@ -19,6 +19,15 @@ export async function getById(id) {
     }
 }
 
+export async function getByName(name) {
+    try{
+        const employee = await Employee.find({ name });
+        return employee;
+    } catch (error) {
+        throw new AppError(error.message, 500);
+    }
+}
+
 export async function getByPosition(position) {
     try{
         const employee = await Employee.find({ position });

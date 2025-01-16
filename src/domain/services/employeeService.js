@@ -9,6 +9,7 @@ import {
     getByPosition,
     getByDepartment,
     getBySalary,
+    getByName
 } from '../../infrastructure/repositories/employeeRepositoryRead.js';
 import { AppError } from '../error/customErros.js'
 
@@ -49,6 +50,14 @@ export async function getByIdService(id) {
         return await getById(id);
     } catch (error) {
         throw new AppError(error.message || 'Error getting the Employee', 500);
+    }
+}
+
+export async function getByNameService(name) {
+    try{
+        return await getByName(name);
+    } catch (error) {
+        throw new AppError(error.message || 'Error getting the Employees', 500);
     }
 }
 

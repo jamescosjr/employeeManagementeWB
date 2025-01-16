@@ -7,6 +7,7 @@ import {
   getByPositionService,
   getByDepartmentService,
   getBySalaryService,
+  getByNameService
 } from "../../domain/services/employeeService";
 import { AppError, ValidationError, NotFoundError } from "../../domain/error/customErros.js";
 import { validateEmployee } from "../../domain/utils/validation.js";
@@ -90,7 +91,7 @@ export async function getEmployeesByNameHandler(req, res, next) {
   const { name } = req.params;
 
   try{
-      const result = await getByIdService(name);
+      const result = await getByNameService(name);
 
       if(!result){
           return next(new NotFoundError('employee not found'));
