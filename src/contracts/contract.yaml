@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  title: Employee Management API
+  version: 1.0.0
+paths:
+  /employees:
+    post:
+      summary: Create a new employee
+      operationId: createEmployee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                position:
+                  type: string
+                department:
+                  type: string
+                salary:
+                  type: number
+      responses:
+        '201':
+          description: Employee created successfully
+        '400':
+          description: Validation error
+    get:
+      summary: Get all employees
+      operationId: getEmployees
+      responses:
+        '200':
+          description: A list of employees
+  /employees/name/{name}:
+    get:
+      summary: Get employees by name
+      operationId: getEmployeesByName
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of employees with the specified name
+        '404':
+          description: Employee not found
+  /employees/department/{department}:
+    get:
+      summary: Get employees by department
+      operationId: getEmployeesByDepartment
+      parameters:
+        - name: department
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of employees in the specified department
+        '404':
+          description: Employee not found
+  /employees/position/{position}:
+    get:
+      summary: Get employees by position
+      operationId: getEmployeesByPosition
+      parameters:
+        - name: position
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of employees with the specified position
+        '404':
+          description: Employee not found
+  /employees/salary/{salary}:
+    get:
+      summary: Get employees by salary
+      operationId: getEmployeesBySalary
+      parameters:
+        - name: salary
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: A list of employees with the specified salary
+        '404':
+          description: Employee not found
+  /employees/{id}:
+    delete:
+      summary: Delete an employee
+      operationId: deleteEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Employee deleted successfully
+        '404':
+          description: Employee not found
+    put:
+      summary: Update an employee
+      operationId: updateEmployee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                position:
+                  type: string
+                department:
+                  type: string
+                salary:
+                  type: number
+      responses:
+        '200':
+          description: Employee updated successfully
+        '400':
+          description: Validation error
+        '404':
+          description: Employee not found

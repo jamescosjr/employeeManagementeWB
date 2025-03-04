@@ -7,7 +7,7 @@ import {
   getEmployeesBySalaryHandler,
   deleteEmployeeHandler,
   updateEmployeeHandler,
-} from "../employeeController";
+} from "../employeeController.js";
 import { Router } from "express";
 
 const router = Router();

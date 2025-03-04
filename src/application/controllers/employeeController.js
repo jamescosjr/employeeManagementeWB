@@ -8,7 +8,7 @@ import {
   getByDepartmentService,
   getBySalaryService,
   getByNameService
-} from "../../domain/services/employeeService";
+} from "../../domain/services/employeeService.js";
 import { AppError, ValidationError, NotFoundError } from "../../domain/error/customErros.js";
 import { validateEmployee } from "../../domain/utils/validation.js";
 
