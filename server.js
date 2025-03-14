@@ -6,6 +6,13 @@ import errorHandler from "./src/application/middleware/errorHandler.js";
 import { validate } from 'express-jsonschema';
 import yaml from 'js-yaml';
 import fs from 'fs';
+import cors from "cors";
+
+const corsOptions = {
+  origin: "*", // Permite todas as origens temporariamente
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
 
 const schema = yaml.load(fs.readFileSync('./src/contracts/contract.yaml', 'utf8'));
 
@@ -31,7 +38,7 @@ if (process.env.NODE_ENV !== 'test') {
 const validateSchema = validate({ body: schema });
 
 app.use(validateSchema);
-
+app.use(cors(corsOptions));
 app.use(routes);
 app.use(errorHandler);
 
