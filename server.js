@@ -37,10 +37,6 @@ if (process.env.NODE_ENV !== 'test') {
 
 const validateSchema = validate({ body: schema });
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
 app.use(validateSchema);
 app.use(cors(corsOptions));
 app.use(routes);
