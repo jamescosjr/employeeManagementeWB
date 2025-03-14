@@ -9,7 +9,7 @@ import fs from 'fs';
 import cors from "cors";
 
 const corsOptions = {
-  origin: "*", // Permite todas as origens temporariamente
+  origin: "http://localhost:3000", // Specify the allowed origin
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
